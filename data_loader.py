@@ -125,7 +125,6 @@ def run_adf(ts_data):
     
     return adf_statistic, p_value
 
-# Assuming filtered_dataframe['Close'] is the time series data
 ts_data = np.log(filtered_dataframe['Close']).diff().dropna().values.flatten()
 adf_statistic, p_value = run_adf(ts_data)
 
