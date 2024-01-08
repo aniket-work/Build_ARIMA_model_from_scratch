@@ -3,7 +3,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
-
+from ar_model import AR_model
+from ma_model import fit_MA_model
 
 # Part 1 : understand data 
 
@@ -146,6 +147,71 @@ plt.title('Partial Autocorrelation Function (PACF)')
 plt.xlabel('Lag')
 plt.ylabel('PACF')
 plt.savefig("results/pacf_plot.png")
+
+# Part 3 Fit AR(p)
+ts_dataframe = pd.DataFrame({'Value': ts_data})  # Creating a DataFrame with 'Value' column
+
+best_RMSE = float('inf')  # Setting initial best_RMSE to infinity or any high value
+best_p = -1
+
+for i in range(1, 26):  # Loop from 1 to 25
+    [df_train, df_test, theta, intercept, RMSE] = AR_model(i, pd.DataFrame(ts_dataframe))
+
+    if RMSE < best_RMSE:
+        best_RMSE = RMSE
+        best_p = i
+
+print(f"The best value of p is {best_p} with RMSE: {best_RMSE}")
+
+df_c = pd.concat([df_train, df_test])
+df_c[['Value', 'Predicted_Values']].plot()
+
+# Save the plot as ar_model_run_op.png
+plt.title('AR Model: Actual vs. Predicted Values')
+plt.xlabel('Time')
+plt.ylabel('Value')
+plt.savefig("results/ar_model_run_op.png")
+
+# Part 4 Fit MA
+
+# Calculate residuals for the MA model
+residuals = df_c['Value'] - df_c['Predicted_Values']
+residuals_df = pd.DataFrame({'Residuals': residuals})
+
+# Plot the density (KDE) of the residuals
+residuals_df.plot(kind='kde', title='Density Plot of Residuals for MA Model')
+plt.xlabel('Residuals')
+plt.ylabel('Density')
+plt.savefig("results/ma_residuals_density_plot.png")
+
+best_RMSE = float('inf')
+best_q = -1
+
+for i in range(1, 13):
+    [res_train, res_test, theta, intercept, RMSE] = fit_MA_model(i, pd.DataFrame({'Residuals': residuals}))
+
+    
+    if RMSE < best_RMSE:
+        best_RMSE = RMSE
+        best_q = i
+
+print(f"The best value of q is {best_q} with RMSE: {best_RMSE}")
+
+res_c = pd.concat([res_train, res_test])
+res_c[['Residuals', 'Predicted_Values']].plot()
+
+# Save the plot as ar_model_run_op.png
+plt.title('MA Model: Actual vs. Predicted Values')
+plt.xlabel('Time')
+plt.ylabel('Value')
+plt.savefig("results/ma_model_run_op.png")
+
+
+
+
+
+
+
 
 
 

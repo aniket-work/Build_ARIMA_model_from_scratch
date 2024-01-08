@@ -13,6 +13,8 @@ pip install statsmodels
 
 pip install matplotlib
 
+pip install scikit-learn
+
 conda env list
 
 
